@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Puzzle of My Heart — Final</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0b0711; --bg2:#170b1f;
+  --accent1:#ff7eb9; --accent2:#a96fd0;
+  --ink:#f6eefe; --muted:rgba(246,238,254,.6);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(800px 600px at 50% -10%,#2a1636 0%,var(--bg2) 40%,var(--bg1) 100%);color:var(--ink)}
+.center{text-align:center}
+.app{max-width:980px;margin:0 auto;padding:18px}
+.bg-stars{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(#2a142b 1px, transparent 1px), radial-gradient(#2a142b 1px, transparent 1px);background-size:120px 120px,60px 60px;mix-blend-mode:screen;opacity:.25}
+.title{font-family:'Dancing Script',serif;font-size:64px;color:#ffd1ea;text-shadow:0 6px 30px rgba(255,79,164,.12);letter-spacing:1px}
+.heart-icon{width:220px;height:200px;border-radius:40px;background:linear-gradient(180deg,#ff6fae,#ff9ecb);box-shadow:0 30px 60px rgba(169,111,208,.18), inset 0 10px 30px rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;position:relative}
+.heart-shine{position:absolute;left:60%;top:22%;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.14);filter:blur(6px)}
+
+/* Start */
+#startscreen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;z-index:1;position:relative}
+.start-btn{margin-top:6px;padding:14px 40px;border-radius:14px;border:2px solid rgba(255,255,255,.08);background:transparent;color:var(--ink);font-weight:700;letter-spacing:4px;font-size:18px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.how-btn{background:transparent;border:none;color:var(--muted);cursor:default;margin-top:6px}
+
+/* main UI */
+.panel{max-width:860px;margin:18px auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.06);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.controls{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,.12);padding:10px 12px;border-radius:10px;color:var(--ink);cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+
+/* confession reveal card */
+.confession-card{padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.04);min-height:120px;transition:opacity .35s,transform .35s}
+.confession-card.revealed{opacity:1;transform:none}
+.confession-card.hidden{opacity:0;transform:translateY(8px)}
+
+/* puzzles and shared */
+.pane{margin-top:12px}
+.pile-row{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.pile{width:84px;height:120px;border-radius:10px;background:linear-gradient(180deg,#151229,#201837);border:1px solid rgba(255,255,255,.06);position:relative;overflow:visible;padding:6px;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.playing-card{width:74px;height:104px;border-radius:8px;background:#1d1736;color:#fff;position:absolute;left:6px;display:flex;flex-direction:column;justify-content:space-between;padding:6px;box-shadow:0 12px 28px rgba(0,0,0,.6);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.playing-card.back{background:linear-gradient(135deg,#2b1d58,#391a5e,#1a0f35);display:flex;align-items:center;justify-content:center;font-size:20px}
+.corner{font-size:12px;opacity:.95}
+.center-sym{display:flex;align-items:center;justify-content:center;font-size:22px;flex:1}
+.red{color:#ffb1d4}
+.black{color:#cfe0ff}
+
+/* lyrics */
+.lyrics{font-size:14px;line-height:1.5;text-align:left;white-space:pre-wrap;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.03);max-height:260px;overflow:auto}
+
+/* celebration */
+.celebration{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.celebration .p{position:absolute;font-size:20px;opacity:.95;animation:rise 4s linear forwards}
+@keyframes rise{from{transform:translateY(120vh) scale(.6);opacity:1}to{transform:translateY(-15vh) scale(1.1);opacity:0}}
+
+/* responsive */
+@media (max-width:720px){ .title{font-size:40px}.heart-icon{width:160px;height:140px} .playing-card{width:56px;height:78px} .pile{width:64px;height:92px} }
+</style>
+</head>
+<body>
+<div class="bg-stars"></div>
+
+<!-- START -->
+<section id="startscreen" class="center">
+  <div style="margin-top:40px"></div>
+  <div class="title">Puzzle of My Heart</div>
+  <div class="heart-icon" aria-hidden="true">
+    <div style="font-size:72px;filter:drop-shadow(0 6px 10px rgba(169,111,208,.25));">💗</div>
+    <div class="heart-shine"></div>
+  </div>
+  <button class="start-btn" id="startBtn">BEGIN THE JOURNEY</button>
+  <button class="how-btn">HOW TO PLAY</button>
+  <div class="small" style="margin-top:18px">Solve 9 puzzles — each solved puzzle reveals one confession.</div>
+</section>
+
+<!-- MAIN -->
+<main id="main" style="display:none" class="app">
+  <div class="panel center">
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+      <div><h1 style="margin:0">Puzzle of My Heart</h1><div class="small">Complete each puzzle to hear my confessions.</div></div>
+      <div style="text-align:right"><div id="progress" class="small">Progress: <span id="progCount">0</span>/9</div></div>
+    </div>
+
+    <div id="stageArea" class="pane"></div>
+
+    <div class="controls">
+      <button id="prevBtn" class="ghost">⬅ Prev</button>
+      <button id="nextBtn" class="ghost">Next ➡</button>
+      <button id="musicToggle" class="ghost">🎵</button>
+    </div>
+  </div>
+</main>
+
+<!-- CONFESSIONS (final view, in case) -->
+<section id="confessions" style="display:none" class="app center">
+  <div class="panel">
+    <h1>Unlocked Confessions</h1>
+    <div id="confessionBox" style="margin-top:12px;padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);min-height:120px"></div>
+    <div style="margin-top:12px" class="small">You can browse all confessions here once finished.</div>
+  </div>
+</section>
+
+<div id="celebration" class="celebration"></div>
+<audio id="bg" crossorigin="anonymous"></audio>
+
+<script>
+// music
+const bg = document.getElementById('bg'); bg.src = 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Monplaisir/Soft_and_Beautiful/Monplaisir_-_Soft_and_Beautiful.mp3';
+document.getElementById('musicToggle').addEventListener('click', ()=>{ if(bg.paused){ bg.play(); document.getElementById('musicToggle').textContent='🔈'; } else { bg.pause(); document.getElementById('musicToggle').textContent='🎵'; } });
+
+// confessions in order
+const CONFESSIONS = [
+  "Rohan, I miss you.",
+  "Moon is prettier than you but you are my sun.",
+  "I hope to be your home just as you are mine.",
+  "My sweeter than sugar, honey.",
+  "This is my confession: I say them to you and only you.",
+  "Aaj phir tumpe pyaar aaya h behad aur beshoomar aaya h.",
+  "I like jasmine. 🌼",
+  "Deep secrets that I can’t reveal yet...",
+  "I wuv you 💖"
+];
+
+// stages
+const STAGES = [
+  {id:0,name:'Love Scramble', init: loveScramble},
+  {id:1,name:'Solitaire', init: solitaireStage},
+  {id:2,name:"Cupid's Maze", init: mazeStage},
+  {id:3,name:'Spot the Difference', init: spotStage},
+  {id:4,name:'Slide & Smile', init: slideStage},
+  {id:5,name:'Song Meaning', init: songStage},
+  {id:6,name:'Catch the Hearts', init: catchStage},
+  {id:7,name:'Color My Heart', init: colorStage},
+  {id:8,name:'Cheesy Line', init: cheesyStage}
+];
+
+let current = 0;
+let revealed = new Set();
+const progCount = document.getElementById('progCount');
+const stageArea = document.getElementById('stageArea');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+document.getElementById('startBtn').addEventListener('click', ()=>{ bg.play(); document.getElementById('startscreen').style.display='none'; document.getElementById('main').style.display='block'; renderStage(); });
+prevBtn.addEventListener('click', ()=>{ if(current>0){ current--; renderStage(); } });
+nextBtn.addEventListener('click', ()=>{
+  // only allow next if current has been revealed (puzzle solved)
+  if(!revealed.has(current)){ pulseStage(); return; }
+  if(current < STAGES.length-1){ current++; renderStage(); } else { // finished all -> show confessions page
+    showAllConfessions();
+  }
+});
+
+function pulseStage(){ stageArea.animate([{boxShadow:'0 0 0 0 rgba(255,79,164,0)'},{boxShadow:'0 0 0 12px rgba(255,79,164,.25)'},{boxShadow:'0 0 0 0 rgba(255,79,164,0)'}],{duration:700}); }
+
+function renderStage(){
+  progCount.textContent = revealed.size;
+  const s = STAGES[current];
+  // if already revealed, show confession card instead of puzzle
+  if(revealed.has(current)){
+    showConfessionCard(current);
+    return;
+  }
+  // otherwise render puzzle UI
+  stageArea.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><h2 style="margin:0">${s.name}</h2><div class="small">Stage ${current+1} of ${STAGES.length}</div></div><div class="small">${revealed.size} / ${STAGES.length}</div></div><div id="stageContent" style="margin-top:12px"></div>`;
+  s.init(document.getElementById('stageContent'));
+}
+
+// reveal function (replaces puzzle with confession)
+function revealConfessionForStage(i){
+  revealed.add(i);
+  progCount.textContent = revealed.size;
+  // replace content with confession card
+  showConfessionCard(i);
+  // if all revealed, auto-show confessions page when last was revealed and current is last
+  if(revealed.size === STAGES.length && i === STAGES.length-1){
+    setTimeout(()=>{ showAllConfessions(); }, 900);
+  }
+}
+
+function showConfessionCard(i){
+  stageArea.innerHTML = `<div class="confession-card revealed"><h3>Confession</h3><div style="margin-top:8px">${CONFESSIONS[i]}</div></div>`;
+  // special: if this confession is index 6 (7th) show reply box
+  if(i===6){
+    const reply = document.createElement('div');
+    reply.className='confession-card';
+    reply.style.marginTop='12px';
+    reply.innerHTML = `<label>Your reply 💌</label><textarea id="replyBox" style="width:100%;min-height:80px;margin-top:8px"></textarea><div style="margin-top:8px"><button id="saveReply" class="ghost">Save Reply</button></div><div id="savedMsg" class="small" style="margin-top:8px"></div>`;
+    stageArea.appendChild(reply);
+    document.getElementById('saveReply').addEventListener('click', ()=>{ const v=document.getElementById('replyBox').value.trim(); if(v) document.getElementById('savedMsg').textContent = `You said: "${v}" 💖`; });
+  }
+  // if last confession show shy gif
+  if(i===STAGES.length-1){
+    const gifWrap = document.createElement('div'); gifWrap.style.marginTop='12px'; gifWrap.innerHTML = `<img src="https://media.tenor.com/Tx3lI3Vz41QAAAAC/anime-blush.gif" style="max-width:240px;border-radius:12px">`;
+    stageArea.appendChild(gifWrap);
+    celebrateAll();
+  }
+}
+
+// show all confessions page
+function showAllConfessions(){
+  document.getElementById('main').style.display='none';
+  document.getElementById('confessions').style.display='block';
+  // show first unlocked confession
+  document.getElementById('confessionBox').textContent = CONFESSIONS[0];
+}
+
+// helper to update celebration
+function celebrateAll(){ const c=document.getElementById('celebration'); for(let i=0;i<35;i++){ const d=document.createElement('div'); d.className='p'; d.innerText='💖'; d.style.left=Math.random()*100+'vw'; d.style.top=(20+Math.random()*60)+'vh'; d.style.fontSize=(12+Math.random()*28)+'px'; c.appendChild(d); setTimeout(()=>d.remove(),5000); } }
+
+// ---- Stage implementations (puzzle logic) ---- //
+
+/* Stage 0: Love Scramble */
+function loveScramble(container){
+  container.innerHTML = `<div class="panel"><div class="small">Unscramble the letters</div><div style="display:flex;gap:10px;justify-content:center;margin-top:12px"><div id="scrambleWrap"></div></div><div style="margin-top:12px" class="center"><button id="checkScramble" class="ghost">Check</button></div></div>`;
+  const letters=['A','H','R','T','E']; let arr = shuffle(letters.slice());
+  const wrap=document.getElementById('scrambleWrap');
+  function draw(){ wrap.innerHTML=''; arr.forEach((c,i)=>{ const b=document.createElement('button'); b.textContent=c; b.style.padding='12px 16px'; b.draggable=true; b.ondragstart=e=>e.dataTransfer.setData('text/plain',i); b.ondragover=e=>e.preventDefault(); b.ondrop=e=>{ const from=+e.dataTransfer.getData('text/plain'); const to=i; const val=arr.splice(from,1)[0]; arr.splice(to,0,val); draw(); }; wrap.appendChild(b); }); }
+  draw();
+  document.getElementById('checkScramble').onclick = ()=>{ if(arr.join('')==='HEART'){ revealConfessionForStage(0); } else alert('Not quite — try rearranging the letters.'); };
+}
+
+/* Stage 1: Solitaire (calls revealConfessionForStage on win) */
+function solitaireStage(container){
+  container.innerHTML = `<div class="panel"><div style="display:flex;justify-content:space-between"><div><b>Solitaire — Klondike</b><div class="small">Win to unlock the confession.</div></div><div class="small" id="solStat">Moves:0 · Time:0s</div></div><div id="solMount"></div></div>`;
+  renderSolitaire(document.getElementById('solMount'), (moves,secs,fcount)=>{ document.getElementById('solStat').textContent = `Moves:${moves} · Time:${secs}s · Foundations:${fcount}/52`; }, ()=>{ revealConfessionForStage(1); });
+}
+
+/* Stage 2: Maze */
+function mazeStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Guide the ❤ to the 💌 using arrows</div><div id="mazeGrid" style="display:grid;grid-template-columns:repeat(7,38px);gap:6px;justify-content:center;margin-top:10px"></div><div style="margin-top:10px;display:flex;gap:8px;justify-content:center"><button class="ghost" id="mUp">↑</button><button class="ghost" id="mLeft">←</button><button class="ghost" id="mRight">→</button><button class="ghost" id="mDown">↓</button></div></div>`;
+  const W=7,H=7; const grid=Array.from({length:H},()=>Array(W).fill(0)); const walls=[[1,1],[1,2],[1,3],[3,1],[3,2],[5,4],[5,5],[2,5],[3,5],[4,5]]; walls.forEach(([x,y])=>grid[y][x]=1);
+  let player=[0,3],goal=[6,3]; const mg=document.getElementById('mazeGrid');
+  function draw(){ mg.innerHTML=''; for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const c=document.createElement('div'); c.className='small'; c.style.width='38px'; c.style.height='38px'; c.style.borderRadius='6px'; c.style.display='flex'; c.style.alignItems='center'; c.style.justifyContent='center'; c.style.background='#151127'; if(grid[y][x]===1) c.style.background='#2a1c3c'; if(x===goal[0]&&y===goal[1]) c.textContent='💌'; if(x===player[0]&&y===player[1]) c.textContent='❤'; mg.appendChild(c);} } }
+  function move(dx,dy){ const nx=player[0]+dx, ny=player[1]+dy; if(nx<0||ny<0||nx>=W||ny>=H) return; if(grid[ny][nx]===1) return; player=[nx,ny]; draw(); if(nx===goal[0]&&ny===goal[1]){ alert('Love finds the way 💘'); revealConfessionForStage(2); } }
+  draw(); document.getElementById('mUp').onclick=()=>move(0,-1); document.getElementById('mDown').onclick=()=>move(0,1); document.getElementById('mLeft').onclick=()=>move(-1,0); document.getElementById('mRight').onclick=()=>move(1,0);
+  window.addEventListener('keydown', (e)=>{ if(document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA'){ if(e.key==='ArrowUp') move(0,-1); if(e.key==='ArrowDown') move(0,1); if(e.key==='ArrowLeft') move(-1,0); if(e.key==='ArrowRight') move(1,0); } });
+}
+
+/* Stage 3: Spot */
+function spotStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Click 3 pink sparkles on the right image</div><div style="display:flex;gap:12px;justify-content:center;margin-top:12px"><div style="width:180px;height:120px;border-radius:10px;background:#201633"></div><div id="rightImg" style="width:180px;height:120px;border-radius:10px;background:#201633;position:relative"></div></div></div>`;
+  const right=document.getElementById('rightImg'); const pts=[[24,20],[100,48],[140,82]]; let found=0;
+  pts.forEach(([x,y])=>{ const h=document.createElement('div'); h.style.position='absolute'; h.style.left=x+'px'; h.style.top=y+'px'; h.style.width='18px'; h.style.height='18px'; h.style.borderRadius='50%'; h.style.background='#ff66b3'; h.style.boxShadow='0 0 12px rgba(255,102,179,.6)'; h.style.cursor='pointer'; h.onclick=()=>{ if(h.style.opacity!=='0'){ h.style.opacity='0'; found++; if(found===3){ alert('You found them ✨'); revealConfessionForStage(3); } } }; right.appendChild(h); });
+}
+
+/* Stage 4: Slide */
+function slideStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Rotate tiles to align the trail</div><div id="rotGrid" style="display:grid;grid-template-columns:repeat(3,82px);gap:8px;justify-content:center;margin-top:12px"></div><div style="margin-top:10px" class="center"><button class="ghost" id="checkRot">Check</button></div></div>`;
+  const tiles = Array.from({length:9},()=>Math.floor(Math.random()*4)); const correct=[0,1,2,3,0,1,2,3,0];
+  const rg=document.getElementById('rotGrid');
+  function draw(){ rg.innerHTML=''; tiles.forEach((t,i)=>{ const b=document.createElement('button'); b.style.height='82px'; b.style.borderRadius='12px'; b.innerHTML=`<div style="transform:rotate(${t*90}deg);font-size:28px">➶</div>`; b.onclick=()=>{ tiles[i]=(tiles[i]+1)%4; draw(); }; rg.appendChild(b); }); }
+  draw(); document.getElementById('checkRot').onclick=()=>{ if(tiles.every((r,i)=>r===correct[i])){ alert('Trail aligned!'); revealConfessionForStage(4); } else alert('Not aligned yet.'); };
+}
+
+/* Stage 5: Song Meaning (show all Telugu lines, check key phrases) */
+function songStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Read the Telugu lines below and type the English meaning (key phrases accepted).</div><div class="lyrics" id="lyricsBlock"></div><div style="margin-top:10px"><input id="songInput" placeholder="Type English meaning (no paste)" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);color:var(--ink)"></div><div style="margin-top:8px;text-align:right"><button id="checkSong" class="ghost">Check</button></div></div>`;
+  const telugu = `Chuttamalle Chuttesthandi Thuntunari Choopu
+Urike Vundadhu Kasepu
+
+Asthamaanam Neelokame Naa Maimarapu
+Chethanaithe Nuvve Nannapu
+
+Raa Naa Niddara Kulaasa Nee Kalalakicchesa
+Nee Kosam Vayassu Vaakili Kaasa
+
+Raa Naa Aashalu Pogesa Nee Gundeku Acchesa
+Nee Raakaku Rangam Siddham Chesa
+
+Enduku Puttindo Puttindi
+Emo Nuvvante Mucchata Puttindi Aa
+
+Pudataane Nee Picchi Pattindhi
+Nii Peru Pettindi
+
+Vayyaram Voni Kattindi Gorinta Pettindi Aa
+Saamiki Mokkalu Kattindi
+
+Chuttamalle Chuttesthandi Haa Chuttesthandi
+Chuttamalle Chuttesthandi Haa Arey
+
+Chuttamalle Chuttesthandi Thuntunari Choopu
+Urike Undadhu Kaasepua
+
+Mattuga Melesindi Ni Warala Magasiri
+Hatthukoleva Mari Sarasana Cherri
+
+Vastuga Penchanitta Vandakotla Sogasiri
+Aasthiga Allesuko Kosari Kosari
+
+Cheyara Muddhula Daadi
+Ishtamelee Nee Sandadi
+Muttadinchi Muttese Koleva
+Osari Cheyijaari
+
+Raa Aey Bangaru Neckleesu
+Naa Vontiki Nacchatle
+Nee Kougilitho Nanu Singaarinchu
+
+Raa Ae Vennela Jolaali
+Nanu Niddara Puchatle
+Na Tippalu Konchem Aalochinchoo`;
+  document.getElementById('lyricsBlock').textContent = telugu;
+  const input = document.getElementById('songInput'); input.addEventListener('paste', e=>e.preventDefault());
+  document.getElementById('checkSong').onclick = ()=>{
+    const v = input.value.toLowerCase();
+    const keys = ['look','tease','tease me','twilight','remember','dream','sleep','youth','born','crazy','henna','charm','silk','goddess','embrace','hold','drench','touch','love','only you','remember you'];
+    if(keys.some(k=>v.includes(k))){ alert('Beautiful — you understood the meaning.'); revealConfessionForStage(5); } else { alert('Try to express the feeling in English (use short phrases like "look here", "they tease", "twilight", "only you").'); }
+  };
+}
+
+/* Stage 6: Catch hearts */
+function catchStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Click falling hearts to catch them (8 total)</div><div id="runway" style="height:220px;position:relative;border-radius:10px;background:linear-gradient(180deg,#151226,#241233);overflow:hidden;margin-top:10px"></div><div style="margin-top:8px" class="small center">Caught: <span id="caught">0</span>/8</div></div>`;
+  const runway=document.getElementById('runway'); let caught=0; let active=true;
+  function spawn(){ if(!active) return; const d=document.createElement('div'); d.textContent='💗'; d.style.position='absolute'; d.style.left=(Math.random()*(runway.clientWidth-24))+'px'; d.style.top='-30px'; d.style.fontSize='22px'; runway.appendChild(d); const dur=2000+Math.random()*1600; let t=0; const step=20; const id=setInterval(()=>{ t+=step; d.style.top = (t/dur)*(runway.clientHeight+40) + 'px'; if(t>=dur){ clearInterval(id); if(d.parentNode) d.remove(); } }, step); d.onclick=()=>{ if(d.dataset.hit) return; d.dataset.hit=1; d.textContent='💖'; caught++; document.getElementById('caught').textContent=caught; if(caught>=8){ active=false; alert('You caught my heart!'); revealConfessionForStage(6); } }; setTimeout(spawn, 300+Math.random()*600); }
+  spawn();
+}
+
+/* Stage 7: Color heart */
+function colorStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Fill the pixels to form a heart</div><div id="pixels" style="display:grid;grid-template-columns:repeat(10,18px);gap:6px;justify-content:center;margin-top:12px"></div><div style="margin-top:10px" class="center"><button class="ghost" id="checkPix">Check</button></div></div>`;
+  const pattern = new Set([22,23,26,27,31,32,33,36,37,38,41,42,43,44,45,46,47,52,53,54,55,56,57,64,65,66,67,68,77,78,79,80,92,93]);
+  const px=document.getElementById('pixels'); const filled=new Set();
+  for(let i=0;i<100;i++){ const p=document.createElement('div'); p.style.width='18px'; p.style.height='18px'; p.style.borderRadius='3px'; p.style.background='#13102a'; p.style.cursor='pointer'; p.onclick=()=>{ if(filled.has(i)){ filled.delete(i); p.style.background='#13102a'; } else { filled.add(i); p.style.background='#ff66b3'; p.style.boxShadow='0 0 8px rgba(255,102,179,.5)'; } }; px.appendChild(p); }
+  document.getElementById('checkPix').onclick = ()=>{ let ok=true; pattern.forEach(idx=>{ if(!filled.has(idx)) ok=false; }); if(ok){ alert('A beautiful heart!'); revealConfessionForStage(7); } else alert('A few pixels are missing.'); }
+}
+
+/* Stage 8: Cheesy line */
+function cheesyStage(container){
+  container.innerHTML = `<div class="panel"><div class="small">Finish the line: "You had me at ____."</div><input id="cheeseInput" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);color:var(--ink)"><div style="margin-top:8px;text-align:right"><button id="checkCheese" class="ghost">Check</button></div></div>`;
+  document.getElementById('checkCheese').onclick = ()=>{ const v=document.getElementById('cheeseInput').value.toLowerCase(); if(v.includes('hello')){ alert('…hello. 🥹'); revealConfessionForStage(8); } else alert('Try a classic word.'); }
+}
+
+// helper shuffle
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// celebration helper
+function celebrateAll(){ const c=document.getElementById('celebration'); for(let i=0;i<40;i++){ const d=document.createElement('div'); d.className='p'; d.innerText='💖'; d.style.left=Math.random()*100+'vw'; d.style.fontSize=(12+Math.random()*28)+'px'; c.appendChild(d); setTimeout(()=>d.remove(),5000); } }
+
+// ---- Solitaire engine (same as previous, calls onWin callback) ----
+function renderSolitaire(mount, onStat, onWin){
+  mount.innerHTML='';
+  const wrap=document.createElement('div'); wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.alignItems='center'; wrap.style.gap='10px';
+  const top=document.createElement('div'); top.style.width='100%'; top.style.display='flex'; top.style.justifyContent='space-between';
+  const leftRow=document.createElement('div'); leftRow.className='pile-row';
+  const stock=document.createElement('div'); stock.className='pile stock'; const waste=document.createElement('div'); waste.className='pile waste';
+  leftRow.append(stock,waste);
+  const foundations=document.createElement('div'); foundations.className='pile-row';
+  const fPiles=[]; for(let i=0;i<4;i++){ const p=document.createElement('div'); p.className='pile foundation'; p.dataset.index=i; foundations.append(p); fPiles.push(p); }
+  top.append(leftRow, foundations);
+  const table=document.createElement('div'); table.style.marginTop='8px'; table.className='pile-row';
+  const tablePiles=[]; for(let i=0;i<7;i++){ const p=document.createElement('div'); p.className='pile tableau'; p.dataset.index=i; p.style.height='240px'; table.append(p); tablePiles.push(p); }
+  wrap.append(top,table); mount.append(wrap);
+
+  const SUITS=['hearts','diamonds','clubs','spades']; const RANKS=[1,2,3,4,5,6,7,8,9,10,11,12,13];
+  function createDeck(){ const d=[]; for(const s of SUITS){ for(const r of RANKS){ d.push({s,r,face:false}); } } return shuffle(d); }
+  function suitSym(s){ return {'hearts':'♥','diamonds':'♦','clubs':'♣','spades':'♠'}[s]; }
+  function colorOf(s){ return (s==='hearts'||s==='diamonds') ? 'red' : 'black'; }
+  function rankLabel(r){ return r===1?'A': r===11?'J': r===12?'Q': r===13?'K': r; }
+
+  let deck=createDeck(); let stockCards=[]; let wasteCards=[]; let foundationsState=[[],[],[],[]]; let tableaux=[[],[],[],[],[],[],[]];
+  for(let i=0;i<7;i++){ for(let j=0;j<=i;j++){ const c=deck.pop(); c.face=(j===i); tableaux[i].push(c); } }
+  stockCards=deck.slice(); deck=[];
+  let moves=0; let start=Date.now(); let timerId=setInterval(()=>{ if(onStat){ const s=Math.floor((Date.now()-start)/1000); const fcount=foundationsState.reduce((a,b)=>a+b.length,0); onStat(moves,s,fcount); } },1000);
+
+  function clearChildren(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function createCardEl(card){
+    const el=document.createElement('div'); el.className='playing-card'; el.dataset.s=card.s; el.dataset.r=card.r;
+    if(!card.face){ el.classList.add('back'); el.textContent='❖'; return el; }
+    const color=colorOf(card.s);
+    let center=suitSym(card.s);
+    if(card.s==='hearts'&&card.r===13) center=kingSVG();
+    if(card.s==='hearts'&&card.r===12) center=queenSVG();
+    el.innerHTML=`<div class="corner ${color==='red'?'red':''}">${rankLabel(card.r)} ${suitSym(card.s)}</div><div class="center-sym">${center}</div><div class="corner ${color==='red'?'red':''}" style="transform:rotate(180deg)">${rankLabel(card.r)} ${suitSym(card.s)}</div>`;
+    if(color==='red') el.classList.add('red'); else el.classList.add('black');
+    return el;
+  }
+
+  function renderAll(){
+    clearChildren(stock); if(stockCards.length){ const ce=document.createElement('div'); ce.className='playing-card back'; ce.textContent='❖'; stock.appendChild(ce); } else { stock.textContent='⇪'; }
+    clearChildren(waste); if(wasteCards.length){ const topc=wasteCards[wasteCards.length-1]; const el=createCardEl(topc); el.style.position='static'; el.style.marginLeft='6px'; waste.appendChild(el); el.addEventListener('click', ()=> selectFromWaste()); } else { waste.textContent='·'; }
+    fPiles.forEach((fp,idx)=>{ clearChildren(fp); const pile=foundationsState[idx]; if(pile.length){ const el=createCardEl(pile[pile.length-1]); el.style.position='static'; fp.append(el); } fp.onclick=()=> tryMoveToFoundationFromSelected(idx); });
+    tablePiles.forEach((tp,ti)=>{ clearChildren(tp); const pile=tableaux[ti]; for(let i=0;i<pile.length;i++){ const c=pile[i]; const el=createCardEl(c); el.style.top=(6+i*22)+'px'; el.style.left='6px'; el.style.zIndex=i+1; el.dataset.index=i; el.addEventListener('dblclick', ()=> autoMoveFromTableau(ti,i)); el.addEventListener('click', (e)=> onTableauCardClick(ti,i,e)); tp.appendChild(el); } tp.onclick=(e)=>{ if(e.target===tp) onTableauEmptyClick(ti); }; });
+    if(foundationsState.flat().length===52){ clearInterval(timerId); const pop=document.createElement('div'); pop.style.position='fixed'; pop.style.left='50%'; pop.style.top='18%'; pop.style.transform='translateX(-50%)'; pop.style.background='linear-gradient(90deg,#ff9ecb,#a96fd0)'; pop.style.color='#fff'; pop.style.padding='12px 18px'; pop.style.borderRadius='12px'; pop.style.boxShadow='0 10px 30px rgba(0,0,0,.35)'; pop.textContent='✨ You unlocked my heart!'; document.body.appendChild(pop); setTimeout(()=>pop.remove(),3500); celebrateAll(); clearInterval(timerId); if(onWin) onWin(); }
+  }
+
+  let selection=null;
+  function onTableauCardClick(tIndex,cardIndex,evt){ const pile=tableaux[tIndex]; const card=pile[cardIndex]; if(!card.face){ if(cardIndex===pile.length-1){ card.face=true; moves++; renderAll(); } return; } const seq=pile.slice(cardIndex); if(!selection){ selection={type:'tableau', tIndex, start:cardIndex, cards:seq}; highlightSelection(); return; } if(selection.type==='tableau' && selection.tIndex===tIndex && selection.start===cardIndex){ selection=null; renderAll(); return; } attemptMoveToTableau(tIndex, selection); }
+  function onTableauEmptyClick(tIndex){ if(!selection) return; const first=selection.cards[0]; if(first.r===13){ if(selection.type==='waste'){ wasteCards.pop(); tableaux[tIndex].push(first); selection=null; moves++; renderAll(); return; } const from=tableaux[selection.tIndex]; const moved=from.splice(selection.start); tableaux[tIndex].push(...moved); if(from.length && !from[from.length-1].face) from[from.length-1].face=true; selection=null; moves++; renderAll(); } }
+  function selectFromWaste(){ if(!wasteCards.length) return; const top=wasteCards[wasteCards.length-1]; selection={type:'waste', cards:[top]}; highlightSelection(); }
+  function attemptMoveToTableau(tIndex, sel){ if(!sel) return; const destPile=tableaux[tIndex]; const destTop=destPile[destPile.length-1]; const moving=sel.cards[0]; if(!destTop){ if(moving.r===13){ if(sel.type==='waste'){ wasteCards.pop(); tableaux[tIndex].push(moving); } else { const from=tableaux[sel.tIndex]; const moved=from.splice(sel.start); tableaux[tIndex].push(...moved); if(from.length && !from[from.length-1].face) from[from.length-1].face=true; } selection=null; moves++; renderAll(); } } else { const colorsDiffer = colorOf(destTop.s)!==colorOf(moving.s); if(colorsDiffer && moving.r===destTop.r-1){ if(sel.type==='waste'){ wasteCards.pop(); tableaux[tIndex].push(moving); } else { const from=tableaux[sel.tIndex]; const moved=from.splice(sel.start); tableaux[tIndex].push(...moved); if(from.length && !from[from.length-1].face) from[from.length-1].face=true; } selection=null; moves++; renderAll(); } } }
+  function tryMoveToFoundationFromSelected(fIndex){ if(!selection) return; const selCard=selection.cards[0]; const foundation=foundationsState[fIndex]; if(foundation.length===0){ if(selCard.r===1){ if(selection.type==='waste'){ wasteCards.pop(); foundationsState[fIndex].push(selCard); } else { const from=tableaux[selection.tIndex]; const moved=from.splice(selection.start); foundationsState[fIndex].push(moved[0]); if(from.length && !from[from.length-1].face) from[from.length-1].face=true; } selection=null; moves++; renderAll(); } } else { const top=foundation[foundation.length-1]; if(selCard.s===top.s && selCard.r===top.r+1){ if(selection.type==='waste'){ wasteCards.pop(); foundationsState[fIndex].push(selCard); } else { const from=tableaux[selection.tIndex]; const moved=from.splice(selection.start); foundationsState[fIndex].push(...moved.slice(0,1)); if(from.length && !from[from.length-1].face) from[from.length-1].face=true; } selection=null; moves++; renderAll(); } } }
+  function highlightSelection(){ renderAll(); if(!selection) return; if(selection.type==='waste'){ const el=waste.querySelector('.playing-card'); if(el) el.style.outline='3px solid rgba(255,79,164,.35)'; } else { const p=tablePiles[selection.tIndex]; const nodes=p.querySelectorAll('.playing-card'); for(let i=selection.start;i<nodes.length;i++){ nodes[i].style.outline='3px solid rgba(255,79,164,.35)'; } } }
+  function autoMoveFromTableau(tIndex,cardIndex){ const card = tableaux[tIndex][cardIndex]; if(!card.face) return; for(let i=0;i<4;i++){ const f=foundationsState[i]; if((f.length===0 && card.r===1) || (f.length>0 && f[f.length-1].s===card.s && f[f.length-1].r===card.r-1)){ const moved = tableaux[tIndex].splice(cardIndex); f.push(moved[0]); moves++; if(tableaux[tIndex].length && !tableaux[tIndex][tableaux[tIndex].length-1].face){ tableaux[tIndex][tableaux[tIndex].length-1].face=true; } renderAll(); return; } } }
+  stock.addEventListener('click', ()=>{ if(stockCards.length){ const c=stockCards.pop(); c.face=true; wasteCards.push(c); selection=null; moves++; renderAll(); } else { while(wasteCards.length){ const c=wasteCards.pop(); c.face=false; stockCards.push(c); } selection=null; renderAll(); } });
+  renderAll();
+  function kingSVG(){ return `<svg width="44" height="44" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gk" cx="50%" cy="32%"><stop offset="0" stop-color="#ffd6eb"/><stop offset="1" stop-color="#7b2fa0"/></radialGradient></defs><circle cx="32" cy="24" r="16" fill="url(#gk)" opacity="0.95"/><path d="M18 20c2-6 10-10 14-10s12 4 14 10c-2 2-8 3-14 3s-12-1-14-3z" fill="#2b174a"/><ellipse cx="32" cy="27" rx="11" ry="9" fill="#f7d9c6"/><path d="M24 25c2-2 4-2 6 0M34 25c2-2 4-2 6 0" stroke="#3a1b3a" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="28" cy="29" r="2" fill="#1b0e2a"/><circle cx="36" cy="29" r="2" fill="#1b0e2a"/><path d="M26 33c2 3 10 3 12 0" stroke="#9c4aa8" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M20 14l4 6 4-6 4 6 4-6 4 6 4-6v4c-6 3-24 3-28 0z" fill="#e6c45a" stroke="#caa53e" stroke-width="1"/><path d="M14 46c8-6 32-6 36 0v6H14v-6z" fill="#a24bd0" opacity="0.9"/></svg>`; }
+  function queenSVG(){ return `<svg width="44" height="44" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gq" cx="50%" cy="30%"><stop offset="0" stop-color="#ffe3f3"/><stop offset="1" stop-color="#a96fd0"/></radialGradient></defs><circle cx="32" cy="23" r="15.5" fill="url(#gq)" opacity="0.97"/><path d="M16 14c4-4 8-6 16-6s12 2 16 6c-2 3-6 5-16 5S18 17 16 14z" fill="#e7c97d" stroke="#caa53e" stroke-width="1"/><circle cx="32" cy="16" r="2.6" fill="#ff7ec5" stroke="#fff" stroke-width="0.6"/><ellipse cx="32" cy="27" rx="11" ry="9" fill="#f9e2cf"/><path d="M26 29c2 1 4 1 6 0M32 29c2 1 4 1 6 0" stroke="#34173d" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="28" cy="29" r="1.5" fill="#1b0e2a"/><circle cx="36" cy="29" r="1.5" fill="#1b0e2a"/><path d="M32 30c-0.6 1.4-0.6 1.4 0 2.4" stroke="#c08aa8" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M28 34c2 1.8 8 1.8 10 0" stroke="#ff87b7" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="22" cy="32" r="1.8" fill="#ffd66e"/><circle cx="42" cy="32" r="1.8" fill="#ffd66e"/><path d="M14 46c8-6 32-6 36 0v6H14v-6z" fill="#c77ae6" opacity="0.9"/></svg>`; }
+}
+
+// initial show
+showStart = ()=>{ document.getElementById('startscreen').style.display='flex'; document.getElementById('main').style.display='none'; document.getElementById('confessions').style.display='none'; }
+showStart();
+</script>
+</body>
+</html>
